@@ -1,4 +1,4 @@
-// SiYuan - Build Your Eternal Digital Garden
+// SiYuan - Refactor your thinking
 // Copyright (c) 2020-present, b3log.org
 //
 // This program is free software: you can redistribute it and/or modify
@@ -61,9 +61,6 @@ func getGraph(c *gin.Context) {
 
 	reqId := arg["reqId"]
 	ret.Data = map[string]interface{}{"reqId": reqId}
-	if nil == arg["id"] {
-		return
-	}
 
 	query := arg["k"].(string)
 	graphConf, err := gulu.JSON.MarshalJSON(arg["conf"])

@@ -2,7 +2,7 @@
 
 echo 'Building UI'
 cd app
-npm install && npm run build
+pnpm install && pnpm run build
 cd ..
 
 echo 'Cleaning Builds'
@@ -22,7 +22,7 @@ export GOARCH=amd64
 go build --tags fts5 -v -o "../app/kernel-linux/SiYuan-Kernel" -ldflags "-s -w" .
 cd ..
 
-echo 'Building Electron'
+echo 'Building Electron App'
 cd app
-npm run dist-linux
+pnpm run dist-linux
 cd ..

@@ -1,4 +1,4 @@
-// SiYuan - Build Your Eternal Digital Garden
+// SiYuan - Refactor your thinking
 // Copyright (c) 2020-present, b3log.org
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,18 @@ import (
 	"github.com/siyuan-note/siyuan/kernel/model"
 	"github.com/siyuan-note/siyuan/kernel/util"
 )
+
+func startFreeTrial(c *gin.Context) {
+	ret := gulu.Ret.NewResult()
+	defer c.JSON(http.StatusOK, ret)
+
+	err := model.StartFreeTrial()
+	if nil != err {
+		ret.Code = -1
+		ret.Msg = err.Error()
+		return
+	}
+}
 
 func useActivationcode(c *gin.Context) {
 	ret := gulu.Ret.NewResult()
@@ -70,12 +82,8 @@ func deactivateUser(c *gin.Context) {
 
 func login(c *gin.Context) {
 	ret := gulu.Ret.NewResult()
-	ret.Code = -1
-
-	arg := map[string]interface{}{}
-	if err := c.BindJSON(&arg); nil != err {
-		ret.Code = -1
-		ret.Msg = "parses request failed"
+	arg, ok := util.JsonArg(c, ret)
+	if !ok {
 		c.JSON(http.StatusOK, ret)
 		return
 	}
@@ -83,10 +91,7 @@ func login(c *gin.Context) {
 	name := arg["userName"].(string)
 	password := arg["userPassword"].(string)
 	captcha := arg["captcha"].(string)
-	result, err := model.Login(name, password, captcha)
-	if nil != err {
-		return
-	}
-
-	c.JSON(http.StatusOK, result)
+	cloudRegion := int(arg["cloudRegion"].(float64))
+	ret = model.Login(name, password, captcha, cloudRegion)
+	c.JSON(http.StatusOK, ret)
 }

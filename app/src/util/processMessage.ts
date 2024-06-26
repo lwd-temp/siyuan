@@ -1,14 +1,20 @@
-import {hideMessage, showMessage} from "../dialog/message";
+/// #if !MOBILE
 import {exportLayout} from "../layout/util";
-import {isMobile} from "./functions";
+/// #endif
+import {hideMessage, showMessage} from "../dialog/message";
+import {setStorageVal} from "../protyle/util/compatibility";
+import {Constants} from "../constants";
 
 export const processMessage = (response: IWebSocketData) => {
     if ("msg" === response.cmd) {
-        showMessage(response.msg, response.data.closeTimeout, response.code === 0 ? "info" : "error");
+        showMessage(response.msg, response.data.closeTimeout, response.code === 0 ? "info" : "error", response.data.id);
         return false;
     }
     if ("cmsg" === response.cmd) {
-        hideMessage();
+        hideMessage(response.data.id);
+        return false;
+    }
+    if ("cprogress" === response.cmd) {
         const progressElement = document.getElementById("progress");
         if (progressElement) {
             progressElement.remove();
@@ -16,11 +22,20 @@ export const processMessage = (response: IWebSocketData) => {
         return false;
     }
     if ("reloadui" === response.cmd) {
-        if (isMobile()) {
-            window.location.reload();
-        } else {
-            exportLayout(true);
+        if (response.data?.resetScroll) {
+            window.siyuan.storage[Constants.LOCAL_FILEPOSITION] = {};
+            setStorageVal(Constants.LOCAL_FILEPOSITION, window.siyuan.storage[Constants.LOCAL_FILEPOSITION]);
         }
+        /// #if MOBILE
+        window.location.reload();
+        /// #else
+        exportLayout({
+            cb() {
+                window.location.reload();
+            },
+            errorExit: false,
+        });
+        /// #endif
         return false;
     }
 
